@@ -4,7 +4,7 @@
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.21
+ * @version 1.6.3
  * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
  */
 
@@ -14,7 +14,7 @@ module.exports = (() => {
 			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.21",
+			version: "1.6.3",
 			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 		},
@@ -60,6 +60,13 @@ module.exports = (() => {
 				name: "Preview Media Volume",
 				note: "Volume of the previews medias on the picker tab",
 				value: 10
+			},
+			{
+				type: "switch",
+				id: "removeGiftBtn",
+				name: "Remove Gift Button",
+				note: "Remove the gift button from the chat",
+				value: false
 			},
 			{
 				type: "category",
@@ -169,10 +176,10 @@ module.exports = (() => {
 				title: "Fixed",
 				type: "fixed",
 				items: [
-					"Fixed images overlapping",
 					"Fixed GIFs being favorited as images",
 					"Fixed for Powercord",
 					"Added buttons position to the settings",
+					"Added Remove Gift Button option", 
 				]
 			}
 		]
@@ -1703,6 +1710,7 @@ module.exports = (() => {
 					this.patchClosePicker();
 					this.patchGIFTab();
 					this.patchMessageContextMenu();
+					this.patchGiftButton();
 					PluginUtilities.addStyle(this.getName() + "-css", `
 						.category-input-color > input[type="color"] {
 							opacity: 0;
@@ -1785,6 +1793,20 @@ module.exports = (() => {
 						viewType: mediaType,
 						isActive: selected
 					}, labels.tabName[mediaType]);
+				}
+
+				patchGiftButton() {
+					if (this.settings.removeGiftBtn) {
+						const {PREMIUM_GIFT_BUTTON_LABEL} = WebpackModules.getByProps("PREMIUM_GIFT_BUTTON_LABEL");
+						PluginUtilities.addStyle(this.getName() + "-css", `
+						button[aria-label="${PREMIUM_GIFT_BUTTON_LABEL}"] {
+							display: none !important;
+						}
+						button[aria-label="Send a gift"] {
+							display: none !important;
+						}
+						`);
+					}
 				}
 
 				patchExpressionPicker() {
