@@ -1,20 +1,20 @@
 /**
- * @name FavoriteMedia (PC)
+ * @name FavoriteMedia (PC Edition)
  * @description Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.0
+ * @version 1.6.1
  * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
  */
 
 module.exports = (() => {
 	const config = {
 		info: {
-			name: "FavoriteMedia (PC)",
+			name: "FavoriteMedia (PC Edition)",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.0",
+			version: "1.6.1",
 			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 		},
@@ -171,8 +171,7 @@ module.exports = (() => {
 				items: [
 					"Fixed images overlapping",
 					"Fixed GIFs being favorited as images",
-					"Fixed for Powercord & bdCompat",
-					"Added position slider to image/video/audio settings"
+					"Fixed for Powercord"
 				]
 			}
 		]
@@ -1603,14 +1602,19 @@ module.exports = (() => {
 					Dispatcher.unsubscribe("PICKER_BUTTON_ACTIVE", this.changeActive);
 				}
 
+				AddStyle() {
+					if ((this.props.type === "video" || this.props.type === "audio" || this.props.type === "image") && PluginUtilities.loadSettings(config.info.name).video !== undefined) {
+						return (this.props.type === "video" ? { order: -PluginUtilities.loadSettings(config.info.name).video.slider } : null || this.props.type === "audio" ? { order: -PluginUtilities.loadSettings(config.info.name).audio.slider } : null || this.props.type === "image" ? { order: -PluginUtilities.loadSettings(config.info.name).image.slider } : null)
+					}
+				}
+
 				render() {
 					return React.createElement("div", {
 						onMouseDown: this.checkPicker,
 						onClick: () => EPS.toggleExpressionPicker(this.props.type, EPSConstants),
 						className: `${classes.textarea.buttonContainer} fm-buttonContainer`,
-						style: (this.props.type === "video" ? { order: -PluginUtilities.loadSettings(config.info.name).video.slider } : null || this.props.type === "audio" ? { order: -PluginUtilities.loadSettings(config.info.name).audio.slider } : null || this.props.type === "image" ? { order: -PluginUtilities.loadSettings(config.info.name).image.slider } : null)
+						style: this.AddStyle()
 					},
-					
 						React.createElement("button", {
 							className: `${classes.look.button} ${classes.look.lookBlank} ${classes.look.colorBrand} ${classes.look.grow}${this.state.active ? ` ${classes.icon.active}` : ""} fm-button`,
 							tabindex: "0",
@@ -1690,7 +1694,7 @@ module.exports = (() => {
 					PluginUpdater.checkForUpdate(
 						this.getName(),
 						this.getVersion(),
-						"https://raw.githubusercontent.com/Dastan21/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
+						"https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 					);
 					this.patchExpressionPicker();
 					this.patchChannelTextArea();
