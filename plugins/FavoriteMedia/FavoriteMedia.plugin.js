@@ -1,11 +1,11 @@
 /**
- * @name FavoriteMedia
+ * @name FavoriteMedia (PC)
  * @description Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.
  * @author Dastan
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
  * @version 1.5.22
- * @source https://github.com/Dastan21/BDAddons/blob/main/plugins/FavoriteMedia
+ * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
  */
 
 module.exports = (() => {
@@ -15,8 +15,8 @@ module.exports = (() => {
 			authors: [{ name: "Dastan", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
 			version: "1.5.22",
-			github: "https://github.com/Dastan21/BDAddons/tree/main/plugins/FavoriteMedia",
-			github_raw: "https://raw.githubusercontent.com/Dastan21/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
+			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
+			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 		},
 		defaultConfig: [
 			{
@@ -398,7 +398,7 @@ module.exports = (() => {
 				}
 
 				componentDidMount() {
-					this.tooltipFav = Tooltip.create(this.refs.tooltipFav, this.isFavorited ? Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES : Strings.GIF_TOOLTIP_ADD_TO_FAVORITES);
+					//this.tooltipFav = Tooltip.create(this.refs.tooltipFav, this.isFavorited ? Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES : Strings.GIF_TOOLTIP_ADD_TO_FAVORITES);
 					Dispatcher.subscribe("FAVORITE_MEDIA", this.updateFavorite);
 				}
 
@@ -415,7 +415,7 @@ module.exports = (() => {
 					if (data.url !== this.props.url) return;
 					const fav = this.isFavorited;
 					this.setState({ favorited: fav });
-					this.tooltipFav.label = fav ? Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES : Strings.GIF_TOOLTIP_ADD_TO_FAVORITES;
+					//this.tooltipFav.label = fav ? Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES : Strings.GIF_TOOLTIP_ADD_TO_FAVORITES;
 				}
 
 				changeFavorite() {
@@ -424,9 +424,9 @@ module.exports = (() => {
 					if (!this.props.fromPicker) this.setState({ favorited: this.isFavorited });
 					Dispatcher.dispatch({ type: "FAVORITE_MEDIA", url: this.props.url });
 					if (this.props.fromPicker) return;
-					this.tooltipFav.label = this.state.favorited ? Strings.GIF_TOOLTIP_ADD_TO_FAVORITES : Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES;
-					this.tooltipFav.hide();
-					this.tooltipFav.show();
+					//this.tooltipFav.label = this.state.favorited ? Strings.GIF_TOOLTIP_ADD_TO_FAVORITES : Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES;
+					//this.tooltipFav.hide();
+					//this.tooltipFav.show();
 					this.setState({ pulse: true });
 					setTimeout(() => {
 						this.setState({ pulse: false });
@@ -827,7 +827,7 @@ module.exports = (() => {
 
 				componentDidMount() {
 					this.url = this.props.url;
-					if (this.isPlayable) this.tooltipControls = Tooltip.create(this.refs.tooltipControls, this.state.showControls ? labels.media.controls.hide : labels.media.controls.show);
+					//if (this.isPlayable) this.tooltipControls = Tooltip.create(this.refs.tooltipControls, this.state.showControls ? labels.media.controls.hide : labels.media.controls.show);
 					Dispatcher.subscribe("TOGGLE_CONTROLS", this.hideControls);
 					Dispatcher.subscribe("SCROLLING_MEDIAS", this.handleVisible);
 				}
@@ -839,7 +839,7 @@ module.exports = (() => {
 
 				componentDidUpdate() {
 					if (this.url !== this.props.url && this.state.showControls) this.changeControls(false);
-					if (this.isPlayable && !this.tooltipControls) this.tooltipControls = Tooltip.create(this.refs.tooltipControls, this.state.showControls ? labels.media.controls.hide : labels.media.controls.show);
+					//if (this.isPlayable && !this.tooltipControls) this.tooltipControls = Tooltip.create(this.refs.tooltipControls, this.state.showControls ? labels.media.controls.hide : labels.media.controls.show);
 					this.url = this.props.url;
 					if (this.state.showControls) this.refs.media.volume = this.props.volume / 100 || 0.1;
 				}
