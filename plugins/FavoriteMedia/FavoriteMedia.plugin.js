@@ -1,20 +1,20 @@
 /**
  * @name FavoriteMedia (PC)
  * @description Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.
- * @author Dastan
+ * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6
+ * @version 1.6.0
  * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
  */
 
 module.exports = (() => {
 	const config = {
 		info: {
-			name: "FavoriteMedia",
-			authors: [{ name: "Dastan", github_username: "Dastan21", discord_id: "310450863845933057" }],
+			name: "FavoriteMedia (PC)",
+			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.5.22",
+			version: "1.6.0",
 			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 		},
