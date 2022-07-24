@@ -171,7 +171,8 @@ module.exports = (() => {
 				items: [
 					"Fixed images overlapping",
 					"Fixed GIFs being favorited as images",
-					"Fixed for Powercord"
+					"Fixed for Powercord & bdCompat",
+					"Added position slider to image/video/audio settings"
 				]
 			}
 		]
