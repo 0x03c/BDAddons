@@ -14,7 +14,7 @@ module.exports = (() => {
 			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.4",
+			version: "1.6.41",
 			github: "https://github.com/0x03c/pc-FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/pc-FavoriteMedia/main/FavoriteMedia.plugin.js"
 		},
