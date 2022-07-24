@@ -1,20 +1,20 @@
 /**
- * @name FavoriteMedia (PC Edition)
+ * @name FavoriteMedia (PC)
  * @description Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.1
+ * @version 1.6.21
  * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
  */
 
 module.exports = (() => {
 	const config = {
 		info: {
-			name: "FavoriteMedia (PC Edition)",
+			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.1",
+			version: "1.6.21",
 			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 		},
@@ -87,7 +87,7 @@ module.exports = (() => {
 						id: "slider",
 						name: "Position",
 						note: "Changes image icon position",
-						value: 1,
+						value: 0,
 						min: 0,
 						max: 4,
 						markers: Array.from(Array(5), (_, i) => 1 * i),
@@ -121,7 +121,7 @@ module.exports = (() => {
 						id: "slider",
 						name: "Position",
 						note: "Changes video icon position",
-						value: 2,
+						value: 0,
 						min: 0,
 						max: 4,
 						markers: Array.from(Array(5), (_, i) => 1 * i),
@@ -155,7 +155,7 @@ module.exports = (() => {
 						id: "slider",
 						name: "Position",
 						note: "Changes audio icon position",
-						value: 3,
+						value: 0,
 						min: 0,
 						max: 4,
 						markers: Array.from(Array(5), (_, i) => 1 * i),
@@ -171,7 +171,8 @@ module.exports = (() => {
 				items: [
 					"Fixed images overlapping",
 					"Fixed GIFs being favorited as images",
-					"Fixed for Powercord"
+					"Fixed for Powercord",
+					"Added buttons position to the settings",
 				]
 			}
 		]
