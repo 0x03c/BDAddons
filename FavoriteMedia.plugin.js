@@ -4,8 +4,8 @@
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.4
- * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
+ * @version 1.6.41
+ * @source https://github.com/0x03c/pc-FavoriteMedia
  */
 
 module.exports = (() => {
@@ -15,8 +15,8 @@ module.exports = (() => {
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
 			version: "1.6.4",
-			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
-			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
+			github: "https://github.com/0x03c/pc-FavoriteMedia",
+			github_raw: "https://raw.githubusercontent.com/0x03c/pc-FavoriteMedia/main/FavoriteMedia.plugin.js"
 		},
 		defaultConfig: [
 			{
@@ -1610,8 +1610,9 @@ module.exports = (() => {
 				}
 
 				AddStyle() {
-					if ((this.props.type === "video" || this.props.type === "audio" || this.props.type === "image") && PluginUtilities.loadSettings(config.info.name).video !== undefined) {
-						return (this.props.type === "video" ? { order: -PluginUtilities.loadSettings(config.info.name).video.slider } : null || this.props.type === "audio" ? { order: -PluginUtilities.loadSettings(config.info.name).audio.slider } : null || this.props.type === "image" ? { order: -PluginUtilities.loadSettings(config.info.name).image.slider } : null)
+					const settings = PluginUtilities.loadSettings(config.info.name);
+					if ((this.props.type === "video" || this.props.type === "audio" || this.props.type === "image") && settings.video !== undefined) {
+						return (this.props.type === "video" ? { order: -settings.video.slider } : null || this.props.type === "audio" ? { order: -settings.audio.slider } : null || this.props.type === "image" ? { order: -settings.image.slider } : null)
 					}
 				}
 
@@ -1701,7 +1702,7 @@ module.exports = (() => {
 					PluginUpdater.checkForUpdate(
 						this.getName(),
 						this.getVersion(),
-						"https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
+						"https://raw.githubusercontent.com/0x03c/pc-FavoriteMedia/main/FavoriteMedia.plugin.js"
 					);
 					this.patchExpressionPicker();
 					this.patchChannelTextArea();
