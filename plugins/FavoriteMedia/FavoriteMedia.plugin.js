@@ -4,7 +4,7 @@
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.3
+ * @version 1.6.4
  * @source https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia
  */
 
@@ -14,7 +14,7 @@ module.exports = (() => {
 			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.3",
+			version: "1.6.4",
 			github: "https://github.com/0x03c/BDAddons/blob/main/plugins/FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
 		},
@@ -176,10 +176,9 @@ module.exports = (() => {
 				title: "Fixed",
 				type: "fixed",
 				items: [
-					"Fixed GIFs being favorited as images",
-					"Fixed for Powercord",
-					"Added buttons position to the settings",
-					"Added Remove Gift Button option", 
+					"Fixed for Powercord (Removed Download/Tooltip functionality)",
+					"Added buttons position to the image/video/audio settings",
+					"Added \"Remove Gift Button\" option to the settings",
 				]
 			}
 		]
@@ -726,7 +725,7 @@ module.exports = (() => {
 								Toasts.success(labels.category.copiedColor);
 							}
 						},
-						{
+/* 						{
 							label: labels.category.download,
 							action: () => BdApi.openDialog({ openDirectory: true }).then(({ filePaths }) => {
 								if (!filePaths) return;
@@ -748,7 +747,7 @@ module.exports = (() => {
 									}))).then(() => Toasts.success(labels.category.success.download)).catch(() => Toasts.error(labels.category.error.download));
 								});
 							})
-						},
+						}, */
 						{
 							label: labels.category.edit,
 							action: () => this.props.openCategoryModal("edit", { name: this.props.name, color: this.props.color, id: this.props.id })
@@ -1355,7 +1354,7 @@ module.exports = (() => {
 							action: () => this.uploadMedia(media_id, true)
 						}]
 					},
-					{
+/* 					{
 						label: Strings.DOWNLOAD,
 						action: () => {
 							const media = PluginUtilities.loadData(config.info.name, this.props.type, { medias: [] }).medias[media_id];
@@ -1372,7 +1371,7 @@ module.exports = (() => {
 								});
 							})
 						}
-					}];
+					} */];
 					const items_categories = this.categoriesItems(media_id);
 					if (items_categories.length > 0) {
 						items.splice(1, 0, {
