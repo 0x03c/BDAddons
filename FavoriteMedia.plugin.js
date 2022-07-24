@@ -4,7 +4,7 @@
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.41
+ * @version 1.6.42
  * @source https://github.com/0x03c/pc-FavoriteMedia
  */
 
@@ -14,7 +14,7 @@ module.exports = (() => {
 			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.41",
+			version: "1.6.42",
 			github: "https://github.com/0x03c/pc-FavoriteMedia",
 			github_raw: "https://raw.githubusercontent.com/0x03c/pc-FavoriteMedia/main/FavoriteMedia.plugin.js"
 		},
@@ -1841,8 +1841,8 @@ module.exports = (() => {
 						const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
 						let perms = true;
 						// Deprecated, just kept in case of old versions
-/* 						try { perms = Permissions.can(PermissionsConstants.SEND_MESSAGES, channel, UserStore.getCurrentUser().id); } catch (_) { }
-						try { perms = Permissions.can(PermissionsConstants.SEND_MESSAGES, UserStore.getCurrentUser(), channel) } catch (_) { } */
+ 						try { perms = Permissions.can(PermissionsConstants.SEND_MESSAGES, channel, UserStore.getCurrentUser().id); } catch (_) { }
+						try { perms = Permissions.can(PermissionsConstants.SEND_MESSAGES, UserStore.getCurrentUser(), channel) } catch (_) { }
 
 						if (!perms) perms = Permissions.can({
 							permission: PermissionsConstants.SEND_MESSAGES,
