@@ -1699,11 +1699,11 @@ module.exports = (() => {
 			return class FavoriteMedia extends Plugin {
 
 				onStart() {
-					PluginUpdater.checkForUpdate(
+/* 					PluginUpdater.checkForUpdate(
 						this.getName(),
 						this.getVersion(),
 						"https://raw.githubusercontent.com/0x03c/pc-FavoriteMedia/main/FavoriteMedia.plugin.js"
-					);
+					); */
 					this.patchExpressionPicker();
 					this.patchChannelTextArea();
 					this.patchMedias();
