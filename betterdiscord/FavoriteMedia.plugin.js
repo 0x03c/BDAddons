@@ -1,24 +1,31 @@
 /**
- * @name FavoriteMedia
+ * @name FavoriteMedia (BD)
  * @description Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.
- * @author Dastan
+ * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.5.22
- * @source https://github.com/Dastan21/BDAddons/blob/main/plugins/FavoriteMedia
+ * @version 1.6.42
+ * @source https://github.com/0x03c/FavoriteMedia
  */
 
 module.exports = (() => {
 	const config = {
 		info: {
 			name: "FavoriteMedia",
-			authors: [{ name: "Dastan", github_username: "Dastan21", discord_id: "310450863845933057" }],
+			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.5.22",
-			github: "https://github.com/Dastan21/BDAddons/tree/main/plugins/FavoriteMedia",
-			github_raw: "https://raw.githubusercontent.com/Dastan21/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
+			version: "1.6.42",
+			github: "https://github.com/0x03c/FavoriteMedia/blob/main/betterdiscord",
+			github_raw: "https://raw.githubusercontent.com/0x03c/FavoriteMedia/main/betterdiscord/FavoriteMedia.plugin.js"
 		},
 		defaultConfig: [
+            {
+				type: "switch",
+				id: "btnsPosition",
+				name: "Buttons Position Left/Right",
+				note: "Position of the buttons on the chat",
+				value: true
+			},
 			{
 				type: "switch",
 				id: "hideUnsortedMedias",
@@ -55,21 +62,11 @@ module.exports = (() => {
 				value: 10
 			},
 			{
-				type: "dropdown",
-				id: "btnsPosition",
-				name: "Buttons Position",
-				note: "Position of the buttons on the chat",
-				value: 'right',
-				options: [
-					{
-						label: 'Right',
-						value: 'right'
-					},
-					{
-						label: 'Left',
-						value: 'left'
-					}
-				]
+				type: "switch",
+				id: "removeGiftBtn",
+				name: "Remove Gift Button",
+				note: "Remove the gift button from the chat",
+				value: false
 			},
 			{
 				type: "category",
@@ -91,6 +88,17 @@ module.exports = (() => {
 						name: "Button",
 						note: "Show image button on chat",
 						value: true
+					},
+                    {
+						type: "slider",
+						id: "slider",
+						name: "Position",
+						note: "Changes image icon position",
+						value: 0,
+						min: 0,
+						max: 4,
+						markers: Array.from(Array(5), (_, i) => 1 * i),
+						stickToMarkers: true
 					}
 				]
 			},
@@ -114,6 +122,17 @@ module.exports = (() => {
 						name: "Button",
 						note: "Show video button on chat",
 						value: true
+                    },
+					{
+						type: "slider",
+						id: "slider",
+						name: "Position",
+						note: "Changes video icon position",
+						value: 0,
+						min: 0,
+						max: 4,
+						markers: Array.from(Array(5), (_, i) => 1 * i),
+						stickToMarkers: true
 					}
 				]
 			},
@@ -137,6 +156,17 @@ module.exports = (() => {
 						name: "Button",
 						note: "Show audio button on chat",
 						value: true
+                    },
+					{
+						type: "slider",
+						id: "slider",
+						name: "Position",
+						note: "Changes audio icon position",
+						value: 0,
+						min: 0,
+						max: 4,
+						markers: Array.from(Array(5), (_, i) => 1 * i),
+						stickToMarkers: true
 					}
 				]
 			}
@@ -147,7 +177,9 @@ module.exports = (() => {
 				type: "fixed",
 				items: [
 					"Fixed images overlapping",
-					"Fixed GIFs being favorited as images"
+					"Fixed GIFs being favorited as images",
+                    "Added buttons position to the image/video/audio settings",
+					"Added \"Remove Gift Button\" option to the settings"
 				]
 			}
 		]
@@ -1578,11 +1610,19 @@ module.exports = (() => {
 					Dispatcher.unsubscribe("PICKER_BUTTON_ACTIVE", this.changeActive);
 				}
 
+                AddStyle() {
+					const settings = PluginUtilities.loadSettings(config.info.name);
+					if ((this.props.type === "video" || this.props.type === "audio" || this.props.type === "image") && settings.video !== undefined) {
+						return (this.props.type === "video" ? { order: -settings.video.slider } : null || this.props.type === "audio" ? { order: -settings.audio.slider } : null || this.props.type === "image" ? { order: -settings.image.slider } : null)
+					}
+				}
+
 				render() {
 					return React.createElement("div", {
 						onMouseDown: this.checkPicker,
 						onClick: () => EPS.toggleExpressionPicker(this.props.type, EPSConstants),
-						className: `${classes.textarea.buttonContainer} fm-buttonContainer`
+                        className: `${classes.textarea.buttonContainer} fm-buttonContainer`,
+						style: this.AddStyle()
 					},
 						React.createElement("button", {
 							className: `${classes.look.button} ${classes.look.lookBlank} ${classes.look.colorBrand} ${classes.look.grow}${this.state.active ? ` ${classes.icon.active}` : ""} fm-button`,
@@ -1663,7 +1703,7 @@ module.exports = (() => {
 					PluginUpdater.checkForUpdate(
 						this.getName(),
 						this.getVersion(),
-						"https://raw.githubusercontent.com/Dastan21/BDAddons/main/plugins/FavoriteMedia/FavoriteMedia.plugin.js"
+						"https://raw.githubusercontent.com/0x03c/FavoriteMedia/main/betterdiscord/FavoriteMedia.plugin.js"
 					);
 					this.patchExpressionPicker();
 					this.patchChannelTextArea();
@@ -1671,6 +1711,7 @@ module.exports = (() => {
 					this.patchClosePicker();
 					this.patchGIFTab();
 					this.patchMessageContextMenu();
+                    this.patchGiftButton();
 					PluginUtilities.addStyle(this.getName() + "-css", `
 						.category-input-color > input[type="color"] {
 							opacity: 0;
@@ -1755,6 +1796,20 @@ module.exports = (() => {
 					}, labels.tabName[mediaType]);
 				}
 
+                patchGiftButton() {
+					if (this.settings.removeGiftBtn) {
+						const {PREMIUM_GIFT_BUTTON_LABEL} = WebpackModules.getByProps("PREMIUM_GIFT_BUTTON_LABEL");
+						PluginUtilities.addStyle(this.getName() + "-css", `
+						button[aria-label="${PREMIUM_GIFT_BUTTON_LABEL}"] {
+							display: none !important;
+						}
+						button[aria-label="Send a gift"] {
+							display: none !important;
+						}
+						`);
+					}
+				}
+
 				patchExpressionPicker() {
 					// https://github.com/rauenzi/BetterDiscordApp/blob/main/renderer/src/builtins/emotes/emotemenu.js
 					Patcher.after(ExpressionPicker, "type", (_, __, returnValue) => {
@@ -1798,7 +1853,7 @@ module.exports = (() => {
 						if (!channel.type && !perms) return;
 						const buttons = returnValue.props.children;
 						if (!buttons || !Array.isArray(buttons)) return;
-						if (this.settings.btnsPosition === "left") {
+						if (this.settings.btnsPosition) {
 							if (this.settings.audio.showBtn && this.settings.audio.enabled) buttons.unshift(React.createElement(MediaButton, { type: "audio" }));
 							if (this.settings.video.showBtn && this.settings.video.enabled) buttons.unshift(React.createElement(MediaButton, { type: "video" }));
 							if (this.settings.image.showBtn && this.settings.image.enabled) buttons.unshift(React.createElement(MediaButton, { type: "image" }));
