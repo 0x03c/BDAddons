@@ -9,8 +9,7 @@ Allows to favorite images, videos and audios. Adds tabs to the emojis menu to se
 ## Requirements
 - [BetterDiscord](https://betterdiscord.app/)
 - OR
-- [Powercord](https://powercord.dev/)
-- [bdCompat](https://github.com/Juby210/bdCompat)
+- [Powercord](https://powercord.dev/) with [bdCompat](https://github.com/Juby210/bdCompat)
 
 ## Installation
 - For Powercord:
