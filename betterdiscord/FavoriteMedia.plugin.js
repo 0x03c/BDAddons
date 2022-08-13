@@ -4,7 +4,7 @@
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.42
+ * @version 1.6.43
  * @source https://github.com/0x03c/FavoriteMedia
  */
 
@@ -14,7 +14,7 @@ module.exports = (() => {
 			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.42",
+			version: "1.6.43",
 			github: "https://github.com/0x03c/FavoriteMedia/blob/main/betterdiscord",
 			github_raw: "https://raw.githubusercontent.com/0x03c/FavoriteMedia/main/betterdiscord/FavoriteMedia.plugin.js"
 		},
@@ -176,10 +176,10 @@ module.exports = (() => {
 				title: "Fixed",
 				type: "fixed",
 				items: [
-					"Fixed images overlapping",
 					"Fixed GIFs being favorited as images",
                     "Added buttons position to the image/video/audio settings",
-					"Added \"Remove Gift Button\" option to the settings"
+					"Added \"Remove Gift Button\" option to the settings",
+					"Fixed Discord locale language module import"
 				]
 			}
 		]
@@ -207,7 +207,7 @@ module.exports = (() => {
 		stop() { }
 	} : (([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-			const { WebpackModules, ReactComponents, PluginUpdater, ContextMenu, PluginUtilities, Utilities, ColorConverter, Toasts, Modals, Tooltip, DiscordModules: { React, ElectronModule, Dispatcher, UserSettingsStore, SelectedChannelStore, ChannelStore, UserStore, Permissions }, Patcher } = Api;
+			const { WebpackModules, ReactComponents, PluginUpdater, ContextMenu, PluginUtilities, Utilities, ColorConverter, Toasts, Modals, Tooltip, DiscordModules: { React, ElectronModule, Dispatcher, LocaleManager, SelectedChannelStore, ChannelStore, UserStore, Permissions }, Patcher } = Api;
 			const { mkdir, access, writeFile, constants } = require('fs');
 
 			const class_modules = {
@@ -2070,7 +2070,7 @@ module.exports = (() => {
 			};
 
 			function setLabelsByLanguage() {
-				switch (UserSettingsStore.locale) {
+				switch (LocaleManager.getLocale() ?? 'en') {
 					case "bg":		// Bulgarian
 						return {
 							"tabName": {
