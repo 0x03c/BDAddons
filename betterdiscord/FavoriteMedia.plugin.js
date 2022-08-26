@@ -4,7 +4,7 @@
  * @author Dastan & 0x03c
  * @authorId 310450863845933057
  * @authorLink https://github.com/Dastan21
- * @version 1.6.43
+ * @version 1.6.44
  * @source https://github.com/0x03c/FavoriteMedia
  */
 
@@ -14,7 +14,7 @@ module.exports = (() => {
 			name: "FavoriteMedia",
 			authors: [{ name: "Dastan & 0x03c", github_username: "Dastan21", discord_id: "310450863845933057" }],
 			description: "Allows to favorite images, videos and audios. Adds tabs to the emojis menu to see your favorited medias.",
-			version: "1.6.43",
+			version: "1.6.44",
 			github: "https://github.com/0x03c/FavoriteMedia/blob/main/betterdiscord",
 			github_raw: "https://raw.githubusercontent.com/0x03c/FavoriteMedia/main/betterdiscord/FavoriteMedia.plugin.js"
 		},
@@ -59,6 +59,9 @@ module.exports = (() => {
 				id: "mediaVolume",
 				name: "Preview Media Volume",
 				note: "Volume of the previews medias on the picker tab",
+				min: 0,
+				max: 100,
+				markers: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
 				value: 10
 			},
 			{
@@ -176,10 +179,8 @@ module.exports = (() => {
 				title: "Fixed",
 				type: "fixed",
 				items: [
-					"Fixed GIFs being favorited as images",
-                    "Added buttons position to the image/video/audio settings",
-					"Added \"Remove Gift Button\" option to the settings",
-					"Fixed Discord locale language module import"
+                    "Fixed GIFs being saved as images",
+                    "Fixed message context menu for videos"
 				]
 			}
 		]
@@ -231,7 +232,8 @@ module.exports = (() => {
 				container: WebpackModules.getByProps("container", "inner", "pointer"),
 				scroller: WebpackModules.getByProps("scrollerBase", "thin", "fade"),
 				look: WebpackModules.getByProps("lowSaturationUnderline", "button", "lookFilled"),
-			};
+                audio: WebpackModules.getByProps("wrapper", "wrapperAudio", "wrapperPaused"),
+            };
 			const classes = {
 				icon: {
 					icon: class_modules.icon.icon,
@@ -248,7 +250,6 @@ module.exports = (() => {
 				},
 				result: {
 					result: class_modules.result.result,
-					gif: class_modules.result.result,
 					favButton: class_modules.result.favButton,
 					emptyHints: class_modules.result.emptyHints,
 					emptyHint: class_modules.result.emptyHint,
@@ -274,6 +275,9 @@ module.exports = (() => {
 				image: {
 					imageAccessory: class_modules.image.imageAccessory,
 					clickable: class_modules.image.clickable,
+					embedWrapper: class_modules._gif.embedWrapper,
+					imageWrapper: class_modules.image.imageWrapper,
+                    messageAttachment: class_modules.image.messageAttachment,
 				},
 				control: class_modules.control.control,
 				category: {
@@ -329,6 +333,9 @@ module.exports = (() => {
 					colorBrand: class_modules.look.colorBrand,
 					grow: class_modules.look.grow,
 					contents: class_modules.look.contents,
+                },
+				audio: {
+					wrapperAudio: class_modules.audio.wrapperAudio,
 				}
 			};
 			const DEFAULT_BACKGROUND_COLOR = "#202225";
@@ -524,7 +531,7 @@ module.exports = (() => {
 				render() {
 					return this.props.fromPicker ? this.favButton() :
 						React.createElement("div", {
-							className: `${classes.image.imageAccessory} ${classes.image.clickable} ${this.props.type}-favbtn`
+						    className: `${classes.image.imageAccessory} ${classes.image.clickable} ${this.props.type}-favbtn ${!this.props.uploaded ? 'fm-uploaded' : ''}`
 						}, this.favButton())
 				}
 			}
@@ -708,18 +715,21 @@ module.exports = (() => {
 					const moveItems = [];
 					if (this.props.index > 0) {
 						moveItems.push({
+                            id: 'category-movePrevious',
 							label: labels.category.movePrevious,
 							action: () => moveCategory(this.props.type, this.props.index, this.props.index - 1)
 						});
 					}
 					if (this.props.index < this.props.length - 1) {
 						moveItems.push({
+                            id: 'category-moveNext',
 							label: labels.category.moveNext,
 							action: () => moveCategory(this.props.type, this.props.index, this.props.index + 1)
 						});
 					}
 					const items = [
 						{
+                            id: 'category-copyColor',
 							label: labels.category.copyColor,
 							action: () => {
 								ElectronModule.copy(this.props.color || DEFAULT_BACKGROUND_COLOR);
@@ -727,6 +737,7 @@ module.exports = (() => {
 							}
 						},
 						{
+                            id: 'category-download',
 							label: labels.category.download,
 							action: () => BdApi.openDialog({ openDirectory: true }).then(({ filePaths }) => {
 								if (!filePaths) return;
@@ -750,10 +761,12 @@ module.exports = (() => {
 							})
 						},
 						{
+                            id: 'category-edit',
 							label: labels.category.edit,
 							action: () => this.props.openCategoryModal("edit", { name: this.props.name, color: this.props.color, id: this.props.id })
 						},
 						{
+                            id: 'category-delete',
 							label: labels.category.delete,
 							danger: true,
 							action: () => {
@@ -763,6 +776,7 @@ module.exports = (() => {
 						}
 					];
 					if (moveItems.length > 0) items.unshift({
+                        id: 'category-move',
 						label: labels.category.move,
 						type: "submenu",
 						items: moveItems
@@ -907,7 +921,7 @@ module.exports = (() => {
 							const bufs = [];
 							res.on('data', chunk => bufs.push(chunk));
 							res.on('end', () => {
-								if (!shiftPressed) WebpackModules.getByProps("closeExpressionPicker").closeExpressionPicker();
+                                if (!shiftPressed) EPS.closeExpressionPicker();
 								try {
 									const content = document.querySelector('[class*="textArea"] [data-slate-string]')?.innerText
 									const fileName = this.props.name + this.props.ext
@@ -931,7 +945,7 @@ module.exports = (() => {
 							const input = textarea?.querySelector('[role="textbox"]')
 							const enterEvent = new KeyboardEvent('keydown', { charCode: 13, keyCode: 13, bubbles: true });
 							if (input) setTimeout(() => input?.dispatchEvent(enterEvent), 0);
-							else EPS.toggleExpressionPicker(this.props.type, EPSConstants)
+							else EPS.toggleExpressionPicker(this.props.type, EPSConstants);
 						} else {
 							WebpackModules.getByProps("sendMessage").sendMessage(SelectedChannelStore.getChannelId(), { content: this.props.url, validNonShortcutEmojis: [] });
 						}
@@ -1246,6 +1260,7 @@ module.exports = (() => {
 						ContextMenu.buildMenu([{
 							type: "group",
 							items: [{
+                                id: 'category-create',
 								label: labels.category.create,
 								action: () => this.openCategoryModal("create")
 							}]
@@ -1277,6 +1292,7 @@ module.exports = (() => {
 				categoriesItems(media_id) {
 					return this.state.categories.map(c => {
 						return {
+                            id: `category-menu-${c.id}`,
 							label: c.name,
 							key: c.id,
 							action: () => this.changeMediaCategory(media_id, c.id),
@@ -1332,7 +1348,7 @@ module.exports = (() => {
 									message: { content: content || '' }
 								});
 								ComponentDispatch.dispatchToLastSubscribed("CLEAR_TEXT");
-								WebpackModules.getByProps("closeExpressionPicker").closeExpressionPicker();
+								EPS.closeExpressionPicker();
 							} catch (e) { console.error(e) }
 						});
 						res.on('error', err => console.error(err));
@@ -1341,21 +1357,25 @@ module.exports = (() => {
 
 				onMediaContextMenu(e, media_id) {
 					const items = [{
+                        id: 'media-input',
 						label: "media-input",
 						render: () => React.createElement(MediaMenuItemInput, { id: media_id, type: this.props.type, loadMedias: this.loadMedias })
-					},
-					{
+					}, {
+                        id: 'media-upload-title',
 						label: labels.media.upload.title,
 						type: "submenu",
 						items: [{
+                            id: 'media-upload-normal',
 							label: labels.media.upload.normal,
 							action: () => this.uploadMedia(media_id)
 						}, {
+                            id: 'media-upload-spoiler',
 							label: labels.media.upload.spoiler,
 							action: () => this.uploadMedia(media_id, true)
 						}]
 					},
 					{
+                        id: 'media-download',
 						label: Strings.DOWNLOAD,
 						action: () => {
 							const media = PluginUtilities.loadData(config.info.name, this.props.type, { medias: [] }).medias[media_id];
@@ -1376,12 +1396,14 @@ module.exports = (() => {
 					const items_categories = this.categoriesItems(media_id);
 					if (items_categories.length > 0) {
 						items.splice(1, 0, {
+                            id: 'media-moveAddTo',
 							label: this.state.category || this.isInCategory(media_id) !== undefined ? labels.media.moveTo : labels.media.addTo,
 							type: "submenu",
 							items: items_categories
 						});
 					}
 					if (this.isInCategory(media_id) !== undefined) items.push({
+                        id: 'media-removeFrom',
 						label: labels.media.removeFrom,
 						danger: true,
 						action: () => this.removeMediaCategory(media_id)
@@ -1599,7 +1621,7 @@ module.exports = (() => {
 				}
 
 				checkPicker() {
-					canClosePicker = this.props.type !== WebpackModules.getByProps("useExpressionPickerStore").useExpressionPickerStore.getState().activeView;
+                    canClosePicker = this.props.type !== EPS.useExpressionPickerStore.getState().activeView;
 				}
 
 				componentDidMount() {
@@ -1725,7 +1747,7 @@ module.exports = (() => {
 						.category-input-color:hover {
 							transform: scale(1.1);
 						}
-						.video-favbtn {
+						.video-favbtn:not(.fm-uploaded) {
 							top: calc(50% - 1em);
 						}
 						.audio-favbtn {
@@ -1773,6 +1795,20 @@ module.exports = (() => {
 							margin-right: 0.7em;
 							margin-left: 0;
 						}
+                        
+						/* Embed fix */
+						.${classes.image.embedWrapper}:not(.${classes.audio.wrapperAudio.split(' ')[0]}):focus-within .${classes.gif.gifFavoriteButton1},
+						.${classes.image.embedWrapper}:not(.${classes.audio.wrapperAudio.split(' ')[0]}):hover .${classes.gif.gifFavoriteButton1} {
+							opacity: 0;
+							-webkit-transform: unset;
+							transform: unset;
+						}
+						.${classes.image.imageWrapper}:not(.${classes.audio.wrapperAudio.split(' ')[0]}):focus-within .${classes.gif.gifFavoriteButton1},
+						.${classes.image.imageWrapper}:not(.${classes.audio.wrapperAudio.split(' ')[0]}):hover .${classes.gif.gifFavoriteButton1} {
+							opacity: 1;
+							-webkit-transform: translateY(0);
+							transform: translateY(0);
+						}
 					`);
 				}
 				onStop() {
@@ -1785,7 +1821,7 @@ module.exports = (() => {
 				}
 
 				MediaTab(mediaType, elementType) {
-					const selected = mediaType === WebpackModules.getByProps("useExpressionPickerStore").useExpressionPickerStore.getState().activeView;
+					const selected = mediaType === EPS.useExpressionPickerStore.getState().activeView;
 					return React.createElement(elementType, {
 						id: `${mediaType}-picker-tab`,
 						"aria-controls": `${mediaType}-picker-tab-panel`,
@@ -1826,7 +1862,7 @@ module.exports = (() => {
 								if (this.settings.image.enabled) head.push(this.MediaTab("image", elementType));
 								if (this.settings.video.enabled) head.push(this.MediaTab("video", elementType));
 								if (this.settings.audio.enabled) head.push(this.MediaTab("audio", elementType));
-								const activeMediaPicker = WebpackModules.getByProps("useExpressionPickerStore").useExpressionPickerStore.getState().activeView;
+                                const activeMediaPicker = EPS.useExpressionPickerStore.getState().activeView;
 								if (["image", "video", "audio"].includes(activeMediaPicker)) body.push(React.createElement(MediaPicker, { type: activeMediaPicker, volume: this.settings.mediaVolume }));
 							} catch (err) {
 								console.error("[FavoriteMedia] Error in ExpressionPicker\n", err);
@@ -1881,7 +1917,8 @@ module.exports = (() => {
 							url: url,
 							poster: props.poster,
 							width: props.width,
-							height: props.height
+							height: props.height,
+                            uploaded: returnValue.props.children[0] != null
 						}));
 					});
 					Patcher.after(Image.prototype, "render", (_, __, returnValue) => {
@@ -1891,7 +1928,7 @@ module.exports = (() => {
 						const propsButton = propsDiv.children?.[1]?.props;
 						if (!propsButton) return;
 						const propsImg = propsButton.children?.props;
-						if (!propsImg?.src || propsDiv.className?.includes("embedVideo")) return;
+						if (!propsImg?.src || propsImg.className?.includes("embedVideo")) return;
 						if (new URL(propsImg.src).pathname.endsWith('.gif')) return;
 						const onclick = propsButton.onClick;
 						propsButton.onClick = e => {
@@ -1908,7 +1945,7 @@ module.exports = (() => {
 				}
 
 				patchClosePicker() {
-					Patcher.instead(WebpackModules.getByProps("closeExpressionPicker"), "closeExpressionPicker", (_, __, originalFunction) => {
+                    Patcher.instead(EPS, "closeExpressionPicker", (_, __, originalFunction) => {
 						if (canClosePicker) originalFunction();
 					});
 				}
@@ -1927,11 +1964,11 @@ module.exports = (() => {
 						if (returnValue.props?.children?.find(e => e?.props?.id === "favoriteMedia")) return;
 						if (!this.settings.showContextMenuFavorite) return;
 						if (!(
-							((props.target.tagName === "A" && !props.target.parentElement.className?.includes("embedVideo")) || (props.target.tagName === "svg" && props.target.className && props.target.className.baseVal === classes.gif.icon) || props.target.tagName === "path") || // image
-							(props.target.tagName === "VIDEO" && props.target.className && !props.target.className.includes("embedMedia")) || // video
+							((props.target.tagName === "A" && props.target.nextSibling?.firstChild?.tagName !== "VIDEO") || (props.target.tagName === "svg" && props.target.className && props.target.className.baseVal === classes.gif.icon) || props.target.tagName === "path") || // image
+                            (props.target.tagName === "VIDEO" && props.target.className?.includes("video")) || // video
 							(props.target.tagName === "A" && props.target.className && props.target.className.includes("metadataName")) // audio
 						)) return;
-						if (new URL(String(props.target.href)).pathname.endsWith('.gif')) return;
+						if (new URL(String(props.target.href ?? props.target.src)).pathname.endsWith('.gif')) return;
 						let target = props.target;
 						if (target.tagName === "svg") target = props.target.parentElement?.parentElement?.previousSibling;
 						if (target.tagName === "path") target = props.target.parentElement?.parentElement?.parentElement?.previousSibling;
@@ -1945,11 +1982,7 @@ module.exports = (() => {
 							favorited: undefined
 						};
 						data.url = data.url.replace("media.discordapp.net", "cdn.discordapp.com");
-						if (props.target.tagName === "VIDEO") {
-							data.type = "video";
-							data.width = Number(target.parentElement.parentElement.style.width.replace("px", ""))
-							data.height = Number(target.parentElement.parentElement.style.height.replace("px", ""))
-						}
+						if (props.target.tagName === "VIDEO") data.type = "video";
 						if (target.className.includes("metadataName")) data.type = "audio";
 						data.favorited = this.isFavorited(data.type, data.url);
 						const menuItems = [];
@@ -1957,6 +1990,7 @@ module.exports = (() => {
 							const category_id = PluginUtilities.loadData(config.info.name, data.type, { medias: [] }).medias.find(m => m.url === data.url)?.category_id;
 							const categories = PluginUtilities.loadData(config.info.name, data.type, { categories: [] }).categories.filter(c => category_id !== undefined ? c.id !== category_id : true);
 							const buttonCategories = categories.map(c => ({
+                                id: `category-edit-${c.id}`,
 								label: c.name,
 								key: c.id,
 								action: () => {
@@ -1965,6 +1999,7 @@ module.exports = (() => {
 								render: () => React.createElement(CategoryMenuItem, { ...c, key: c.id })
 							}));
 							menuItems.push({
+                                id: 'unfavorite-gif',
 								label: Strings.GIF_TOOLTIP_REMOVE_FROM_FAVORITES,
 								icon: () => React.createElement(StarSVG, { filled: true }),
 								action: () => {
@@ -1973,6 +2008,7 @@ module.exports = (() => {
 								}
 							});
 							if (categories.length) menuItems.push({
+                                id: 'category-edit',
 								label: category_id !== undefined ? labels.media.moveTo : labels.media.addTo,
 								type: "submenu",
 								items: buttonCategories
@@ -1980,6 +2016,7 @@ module.exports = (() => {
 						} else {
 							const categories = PluginUtilities.loadData(config.info.name, data.type, { categories: [] }).categories;
 							const buttonCategories = categories.map(c => ({
+                                id: `category-name-${c.id}`,
 								label: c.name,
 								key: c.id,
 								action: () => {
@@ -1990,6 +2027,7 @@ module.exports = (() => {
 								render: () => React.createElement(CategoryMenuItem, { ...c, key: c.id })
 							}));
 							menuItems.push({
+                                id: 'favorite-gif',
 								label: Strings.GIF_TOOLTIP_ADD_TO_FAVORITES,
 								icon: () => React.createElement(StarSVG, { filled: true }),
 								action: () => {
@@ -1998,6 +2036,7 @@ module.exports = (() => {
 								}
 							});
 							if (categories.length) menuItems.push({
+                                id: 'media-addTo',
 								label: labels.media.addTo,
 								type: "submenu",
 								items: buttonCategories
@@ -2074,7 +2113,7 @@ module.exports = (() => {
 					case "bg":		// Bulgarian
 						return {
 							"tabName": {
-								"image": "Картина",
+								"image": "Изображения",
 								"video": "Видео",
 								"audio": "Аудио"
 							},
@@ -3737,7 +3776,7 @@ module.exports = (() => {
 						return {
 							"tabName": {
 								"image": "Картина",
-								"video": "видео",
+								"video": "Видео",
 								"audio": "Аудио"
 							},
 							"create": "Создавать",
